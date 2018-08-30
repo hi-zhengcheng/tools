@@ -28,6 +28,6 @@ axes.add_patch(rect)
 text_pad = 1
 axes.text(left + text_pad + 1, top - text_pad - 2, '0.8523', color='b', fontsize=8, bbox=dict(pad=1, edgecolor='None', facecolor='white', alpha=0.8))
 
-# show text
+# show result
 plt.show()
 
