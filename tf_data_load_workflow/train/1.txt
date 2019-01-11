@@ -1,2 +1,0 @@
-path1 label1
-path2 label2
