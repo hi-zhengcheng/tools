@@ -1,5 +1,5 @@
 import tensorflow as tf
-import collections
+import numpy as np
 
 
 """
@@ -7,128 +7,131 @@ The old version tf data load API is work on the Queue concept.
 The new version API uses the concept of DataSet.
 
 This demo illustrates some common usage of DataSet API.
+
+Core logic:
+1. Create Dataset from data source. Data source can be:
+    1. numpy or tensor
+    2. TFRecords
+    3. txt files
+    4. csv files
+    
+2. Transformation dataset. Do operations like:
+    1. Batch
+    2. Repeat
+    3. Shuffle
+    4. Map
+    5. Filter
+    
+    Note: the order of transformation if import, different order leads to different result.
+    
+3. Use Iterator to get data from Dataset. Several different types of iterator:
+    1. One shot iterator
+    2. Initializable iterator
+    3. Reinitializable iterator
+    4. Feedable iterator
+    
+4. Use data in train or inference process.
+    
 """
 
 
 """
-Condition 1: one txt file, each line is one training example, like image_path and label.
+1. Create Dataset from different data source
 """
 
 
-class OneTrainingExampleObject(collections.namedtuple('OneTrainingExampleObject', ['path', 'label'])):
-    pass
+# create dataset from numpy array
+def create_dataset1():
+    dataset1 = tf.data.Dataset.from_tensor_slices(np.arange(0, 10, 1))
+    return dataset1
 
 
-def parse_file_line1(line):
-    record_defaults = [[''], ['']]
-    data = tf.decode_csv(line, record_defaults, field_delim=' ')
-    return OneTrainingExampleObject(data[0], data[1])
+# create dataset from 1-D tensor
+def create_dataset2():
+    dataset2 = tf.data.Dataset.from_tensor_slices(tf.range(10))
+    return dataset2
 
 
-def tf_read_txt_file_pipeline1(file_path_tensor):
-    """Read txt file
-
-    Suppose one txt file contains all training example.
-    """
-    _dataset = (
-        tf.data.TextLineDataset(file_path_tensor)
-        .filter(lambda line: tf.not_equal(line, ''))
-        .filter(lambda line: tf.not_equal(tf.substr(line, 0, 1), '#'))
-        .map(parse_file_line1)
-        .shuffle(10)
-        .repeat(5))
-
-    _iterator = _dataset.make_one_shot_iterator()
-    return _iterator.get_next()
+# create dataset from multiple objects. Each object must have same size in 0-dim.
+def create_dataset3():
+    dataset3 = tf.data.Dataset.from_tensor_slices((tf.range(0, 10, 1), tf.range(10, 20, 1)))
+    return dataset3
 
 
-def test1():
-    file_path_tensor = tf.constant('train/1.txt')
-    one_example = tf_read_txt_file_pipeline1(file_path_tensor)
+"""
+2. Transform dataset
+"""
 
-    sess = tf.Session()
-    c = 1
-    while True:
+
+def transform_dataset(dataset):
+    dataset = dataset.shuffle(5)\
+        .repeat(2)\
+        .batch(2)
+    return dataset
+
+
+"""
+3. Get data by Iterator.
+"""
+
+
+def get_data_from(dataset):
+    iterator = dataset.make_one_shot_iterator()
+    data = iterator.get_next()
+    return data
+
+
+"""
+4. Train
+"""
+
+
+def train(data):
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
         try:
-            print(c, sess.run(one_example))
-            c += 1
-        except:
-            break
+            while True:
+                # run model optimizer, do checkpoint and some logs
+                print(sess.run(data))
+        except tf.errors.OutOfRangeError:
+            pass
 
 
 """
-Condition 2: many txt files, one txt file represents one training example.
+Put them together
 """
 
 
-def read_file_lines2(file_path, max_lines=10000):
-    """Reads a txt file, skips comments
-
-    Args:
-        file_path: the file path to read
-        max_lines: how many lines to combine to a single element.
-            Any further lines will be skipped.
-
-    Returns:
-        The lines of the file, as a 1 dimensional tensor.
-    """
-    lines = (tf.data.TextLineDataset(file_path)
-             .filter(lambda line: tf.not_equal(tf.substr(line, 0, 1), '#'))
-
-             .batch(max_lines)
-             .take(1))
-    return tf.data.experimental.get_single_element(lines)
+def map_fn(x):
+    return x * 3
 
 
-def parse_file_lines2(lines):
-    """parse lines as image, label.
-
-    Args:
-        lines: lines contents in one file. Each line has form:
-            image_path label
-
-    Returns:
-        One training example object.
-    """
-    record_defaults = [[''], ['']]
-    data = tf.decode_csv(lines, record_defaults, field_delim=' ')
-    return OneTrainingExampleObject(data[0], data[1])
+def filter_fn(x):
+    return tf.not_equal(x % 5, 1)
 
 
-def tf_read_txt_file_pipeline2():
-    """Read txt file demo.
-
-    Suppose one txt file contains one training example.
-    """
-    txt_glob = 'train/*.txt'
-    assert tf.gfile.Glob(txt_glob)
-
-    files = (
-        tf.data.Dataset.list_files(txt_glob, shuffle=False)
-        .map(read_file_lines2, num_parallel_calls=10)
-        .map(parse_file_lines2)
+def tf_dataset_workflow_demo():
+    dataset = (
+        tf.data.Dataset.from_tensor_slices(np.arange(0, 10, 1))
         .shuffle(10)
-        .repeat(5))
+        .repeat(2)
+        .map(map_fn)
+        .filter(filter_fn)
+        .batch(2))
 
-    _iterator = files.make_one_shot_iterator()
-    return _iterator.get_next()
+    iterator = dataset.make_one_shot_iterator()
+    data = iterator.get_next()
 
-
-def test2():
-    one_example = tf_read_txt_file_pipeline2()
-
-    sess = tf.Session()
-    c = 1
-    while True:
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
         try:
-            print(c, sess.run(one_example))
-            c += 1
-        except:
-            break
+            while True:
+                # run model optimizer, do checkpoint and some logs
+                print(sess.run(data))
+        except tf.errors.OutOfRangeError:
+            pass
 
 
 if __name__ == '__main__':
-    print('one file, all training examples'.center(100, '-'))
-    test1()
-    print('many files, one file one training example'.center(100, '-'))
-    test2()
+    tf_dataset_workflow_demo()
+
