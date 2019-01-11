@@ -22,7 +22,7 @@ Core logic:
     4. Map
     5. Filter
     
-    Note: the order of transformation if import, different order leads to different result.
+    Note: the order of transformation is import, different order leads to different result.
     
 3. Use Iterator to get data from Dataset. Several different types of iterator:
     1. One shot iterator
