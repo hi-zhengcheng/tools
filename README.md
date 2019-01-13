@@ -13,3 +13,5 @@
 1. [Compute VGG loss by PyTorch](compute_vgg_loss_by_pytorch.py)
 
 1. [Tensorflow DataSet workflow](tf_dataset_workflow.py)
+
+1. [Object Detection by tensorflow](object_detection_tf)
