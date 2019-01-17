@@ -15,3 +15,5 @@
 1. [Tensorflow DataSet workflow](tf_dataset_workflow.py)
 
 1. [Object Detection by tensorflow](object_detection_tf)
+
+1. [Face detection](face_detection)
