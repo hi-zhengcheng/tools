@@ -17,3 +17,5 @@
 1. [Object Detection by tensorflow](object_detection_tf)
 
 1. [Face detection](face_detection)
+
+1. [Mound new hard disk_ubuntu](mount_new_hard_disk_ubuntu)
