@@ -18,4 +18,4 @@
 
 1. [Face detection](face_detection)
 
-1. [Mound new hard disk_ubuntu](mount_new_hard_disk_ubuntu)
+1. [Mount new hard disk_ubuntu](mount_new_hard_disk_ubuntu)
