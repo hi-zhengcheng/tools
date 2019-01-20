@@ -1,7 +1,7 @@
 # Auto Reconnect VPN on Ubuntu
 
 ## 1. Figure out vpn name
-Run:
+Run the command:
 
 ```bash
 nmcli con
