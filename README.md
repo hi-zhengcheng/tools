@@ -18,6 +18,8 @@
 
 1. [Face detection](face_detection)
 
-1. [Mount new hard disk_ubuntu](mount_new_hard_disk_ubuntu)
+1. [Mount new hard disk_ubuntu](mount_new_hard_disk_ubuntu.md)
 
 1. [Auto reconnect VPN on ubuntu](auto_reconnect_vpn_on_ubuntu.md)
+
+1. [Connect PPTP on macOS Sierra](connect_pptp_on_macos_sierra.md)
