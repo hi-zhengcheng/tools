@@ -23,3 +23,5 @@
 1. [Auto reconnect VPN on ubuntu](auto_reconnect_vpn_on_ubuntu.md)
 
 1. [Connect PPTP on macOS Sierra](connect_pptp_on_macos_sierra.md)
+
+1. [Attach another process and see it's output](attach_and_see_output.md)
